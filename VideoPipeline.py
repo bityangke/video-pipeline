@@ -4,12 +4,16 @@ import functools
 
 def _run_single(x, modules=None, log_dir=None):
     '''Move out from the class so that we can use multiprocessing'''
+    ox = x
     log_path = osp.join(log_dir, x + '.done')
     if osp.exists(log_path):
         return None
 
     for module in modules:
         x = module.run(x)
+        if x is None:
+            open(osp.join(log_dir, ox + '.failed'), 'w').close()
+            break
 
     for module in modules:
         module.close()

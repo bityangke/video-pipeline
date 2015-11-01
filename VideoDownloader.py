@@ -14,10 +14,16 @@ class VideoDownloader(PipelineModule):
         '''
         ret = os.system('./youtube-dl -o "%s/yt-%s.mp4" -- "%s"' %
                             (self.working_dir, ytid, ytid))
+
+        # Failed downloading videos
+        if ret != 0:
+            self.out_path = None
+            return None
+
         self.out_path = '%s/yt-%s.mp4' % (self.working_dir, ytid)
         return (self.out_path, 'yt-%s.mp4' % ytid)
 
 
     def close(self):
-        if not self.save:
+        if not self.save and self.out_path:
             os.remove(self.out_path)
