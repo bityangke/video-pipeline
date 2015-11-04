@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+import shutil
 from PipelineModule import PipelineModule
 
 class FrameExtractor(PipelineModule):
@@ -23,7 +24,7 @@ class FrameExtractor(PipelineModule):
         except:
             pass
 
-        self.out_path = self.working_dir + '/' + fn
+        self.out_path = osp.join(self.working_dir, fn)
         cmd = 'ffmpeg -i %s ' % path
         cmd += '-threads 1 '
         cmd += '-r %d ' % self.fps
@@ -35,5 +36,12 @@ class FrameExtractor(PipelineModule):
         if ret != 0:
             self.out_path = None
             return None
-        return self.out_path
+        return self.out_path, fn
 
+
+    def close(self):
+        try:
+            if not self.save and self.out_path:
+                shutil.rmtree(self.out_path)
+        except (AttributeError, OSError) as e:
+            pass

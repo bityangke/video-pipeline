@@ -4,21 +4,25 @@ import functools
 
 def _run_single(x, modules=None, log_dir=None):
     '''Move out from the class so that we can use multiprocessing'''
-    ox = x
-    log_path = osp.join(log_dir, x + '.done')
+    ox = x[1] if len(x) == 2 else x
+    log_path = osp.join(log_dir, ox + '.done')
     if osp.exists(log_path):
         return None
 
-    for module in modules:
-        x = module.run(x)
-        if x is None:
-            open(osp.join(log_dir, ox + '.failed'), 'w').close()
-            break
+    try:
+        for module in modules:
+            x = module.run(x)
+            if x is None:
+                open(osp.join(log_dir, ox + '.failed'), 'w').close()
+                break
 
-    for module in modules:
-        module.close()
+        for module in modules:
+            module.close()
 
-    open(log_path, 'w').close()
+        open(log_path, 'w').close()
+    except IOError:
+        pass
+
     return x
 
 
@@ -43,7 +47,9 @@ class VideoPipeline:
                                             modules=self.modules,
                                             log_dir=self.log_dir)
         if self.n_job == 1:
-            map(_run_single_arg, ilist)
+            out = map(_run_single_arg, ilist)
         else:
-            multiprocessing.Pool(self.n_job).map(_run_single_arg, ilist)
+            out = multiprocessing.Pool(self.n_job).map(_run_single_arg, ilist)
+        print 'final output length: ', len(out)
+
 

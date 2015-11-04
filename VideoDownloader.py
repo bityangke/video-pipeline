@@ -12,8 +12,8 @@ class VideoDownloader(PipelineModule):
 
         TODO: remove the need for this module to know what is needed in the next module
         '''
-        ret = os.system('./youtube-dl -o "%s/yt-%s.mp4" -- "%s"' %
-                            (self.working_dir, ytid, ytid))
+        cmd = './youtube-dl -f mp4/bestvideo -o "%s/yt-%s.mp4" -- "%s"' % (self.working_dir, ytid, ytid)
+        ret = os.system(cmd)
 
         # Failed downloading videos
         if ret != 0:
