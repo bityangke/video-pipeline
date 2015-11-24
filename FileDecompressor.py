@@ -22,6 +22,7 @@ class FileDecompressor(PipelineModule):
         ret = os.system(cmd)
         if ret != 0:
             return None
+        print 'out_path: ', self.out_path
         return self.out_path, fn
 
 
